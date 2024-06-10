@@ -29,6 +29,9 @@ def add_file():
     if not file:
         return {'status': False, 'message': '文件不存在'}
     file_name = file.raw_filename
+    _, file_ext = os.path.splitext(file_name)
+    if file_ext.lower() != '.pdf':
+        return {'status': False, 'message': '文件格式不支持'}
     file_size = request.content_length
     file_io = file.file
     result, content = get_chat_parser().upload_pdf(file_name, file_size, file_io)
