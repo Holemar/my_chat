@@ -64,13 +64,6 @@
 const htmls = [];  // 对话内容
 var targetId = null; // 文件编码
 var chatboxClass = '.lite-chatbox';  // 聊天框选择器
-var fileUploadConfig = {
-    messageType: 'raw',
-    headIcon: '/static/images/A.jpg',
-    name: 'PDF智能解析机器人',
-    position: 'left',
-    html: `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
-};
 
 function sendMessage() {
     var message = document.querySelector('.chatinput').innerHTML;
@@ -83,7 +76,15 @@ function sendMessage() {
     document.querySelector('.chatinput').innerHTML = '';  // 清空输入框
     // 没有上传文件时
     if (!targetId) {
-        htmls.push(fileUploadConfig);
+        // htmls.push({'messageType': 'tipsWarning', html: '系统消息：请先上传 PDF 文件'});
+        // beforeRenderingHTML(htmls, chatboxClass);
+        htmls.push({
+            messageType: 'raw',
+            headIcon: '/static/images/A.jpg',
+            name: 'PDF智能解析机器人',
+            position: 'left',
+            html: `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
+        });
         beforeRenderingHTML(htmls, chatboxClass);
     } else {
         ajax({
@@ -126,8 +127,7 @@ function sendFile(file) {
                 html: '文件已经完成智能解析，请就这文件进行讨论。'
             });
             // 清空之前的聊天内容，避免再次上传文件（此场景暂不考虑）
-            var chatBox = document.querySelector(chatboxClass);
-            chatBox.innerHTML = '';
+            document.querySelector(chatboxClass).innerHTML = '';
             beforeRenderingHTML(htmls, chatboxClass);
         } else {
             htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
@@ -141,7 +141,13 @@ function sendFile(file) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    htmls.push(fileUploadConfig);
+    htmls.push({
+        messageType: 'raw',
+        headIcon: '/static/images/A.jpg',
+        name: 'PDF智能解析机器人',
+        position: 'left',
+        html: `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
+    });
     beforeRenderingHTML(htmls, chatboxClass);
 
     // 设置发送文件
