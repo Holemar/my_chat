@@ -11,29 +11,6 @@
 // !致谢：感谢@jrainlau提供的思路和代码，我在他的富文本编辑器基础上进行了修改，使其能够在聊天输入框中使用
 // ————YubaC 2023.1.23
 
-
-/**
- * 这是错误调试程序
- * 当页面发生错误时，提示错误讯息；仅测试环境里会提示，正式环境下不提示错误。
- * 注意：仅IE、fiefox有效,w3c标准里面没有此定义, chrome、opera 和 safari 浏览器不支持此事件
- */
-window.onerror = function(msg, url, sLine) {
-    var hostUrl = window.location.href;
-    // 判断网址,测试时可以提示出错信息;正式发布时不提示
-    if (hostUrl.indexOf("http://localhost") === 0 || hostUrl.indexOf("http://127.0.0.") === 0 ||
-        hostUrl.indexOf("http://192.168.") === 0 || hostUrl.indexOf("file://") === 0 ||
-        hostUrl.indexOf("http://0.0.0.0") === 0) {
-        var errorMsg = "当前页面的javascript发生错误.\n\n";
-        errorMsg += "错误: " + msg + "\n";   // 出错信息
-        errorMsg += "URL: " + url + "\n";    // 出错文件的地址
-        errorMsg += "行: " + sLine + "\n\n"; // 发生错误的行
-        errorMsg += "点击“确定”以继续。\n\n";
-        window.alert( errorMsg );
-    }
-    // 返回true,会消去 IE下那个恼人的“网页上有错误”的提示
-    return true;
-};
-
 // --------------------------------
 // 上半部分的聊天区域
 var upperChild = document.querySelector('.lite-chatbox');

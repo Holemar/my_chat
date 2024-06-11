@@ -1,0 +1,12 @@
+@charset "UTF-8";
+
+html, body {height: 100%; margin: 0; padding: 0;}
+.lite-chatmaster {margin-left: 210px; height: 100%; width: calc(100% - 210px);}
+::-webkit-scrollbar { /* 滚动条整体样式 */ width: 3px; /* 高宽分别对应横竖滚动条的尺寸 */ height: 1px;}
+.file-btn {background: none;border: solid 1px;border-radius: 2em;font: inherit;cursor: pointer;color: #FF0066;}
+.left-menu {float: left; width: 200px; background-color: lightgray; height: 100%;}
+.left-menu ul {list-style-type: none; margin: 0; padding: 0; width: 200px; position: fixed; height: 100%; overflow: auto;}
+.left-menu li a {display: block; color: #000; padding: 8px 16px; text-decoration: none; background-color: Silver; border-radius: 2em;}
+.left-menu li a.new { background-color: lavender; color: #33CCFF; }
+.left-menu li a.active { background-color: #f8f9fa; color: coral; border-top-left-radius: 2em; border-top-right-radius: 0; border-bottom-left-radius: 2em; border-bottom-right-radius: 0;}
+.left-menu li a:hover:not(.active) {background-color: lavender; color: coral; border-top-left-radius: 2em; border-top-right-radius: 0; border-bottom-left-radius: 2em; border-bottom-right-radius: 0;}

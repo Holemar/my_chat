@@ -34,8 +34,10 @@ def add_file():
         return {'status': False, 'message': '文件格式不支持'}
     file_size = request.content_length
     file_io = file.file
+    if settings.DEBUG:
+        return {'status': True, 'message': 'src_IdBJejTPiabjomM3UT6bl', 'file_name': file_name}
     result, content = get_chat_parser().upload_pdf(file_name, file_size, file_io)
-    return {'status': True, 'message': content}
+    return {'status': True, 'message': content, 'file_name': file_name}
 
 
 @post('/api/chat_message')
@@ -45,6 +47,8 @@ def chat_message():
     message = request.query.getunicode('message') or request.forms.getunicode('message')
     if not target_id or not message:
         return {'status': False, 'message': '参数错误'}
+    if settings.DEBUG:
+        return {'status': True, 'message': message}
     result, content = get_chat_parser().chat_message(target_id, message)
     return {'status': result, 'message': content}
 
