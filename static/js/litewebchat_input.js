@@ -11,6 +11,114 @@
 // !致谢：感谢@jrainlau提供的思路和代码，我在他的富文本编辑器基础上进行了修改，使其能够在聊天输入框中使用
 // ————YubaC 2023.1.23
 
+
+/**
+ * 这是错误调试程序
+ * 当页面发生错误时，提示错误讯息；仅测试环境里会提示，正式环境下不提示错误。
+ * 注意：仅IE、fiefox有效,w3c标准里面没有此定义, chrome、opera 和 safari 浏览器不支持此事件
+ */
+window.onerror = function(msg, url, sLine) {
+    var hostUrl = window.location.href;
+    // 判断网址,测试时可以提示出错信息;正式发布时不提示
+    if (hostUrl.indexOf("http://localhost") === 0 || hostUrl.indexOf("http://127.0.0.") === 0 ||
+        hostUrl.indexOf("http://192.168.") === 0 || hostUrl.indexOf("file://") === 0 ||
+        hostUrl.indexOf("http://0.0.0.0") === 0) {
+        var errorMsg = "当前页面的javascript发生错误.\n\n";
+        errorMsg += "错误: " + msg + "\n";   // 出错信息
+        errorMsg += "URL: " + url + "\n";    // 出错文件的地址
+        errorMsg += "行: " + sLine + "\n\n"; // 发生错误的行
+        errorMsg += "点击“确定”以继续。\n\n";
+        window.alert( errorMsg );
+    }
+    // 返回true,会消去 IE下那个恼人的“网页上有错误”的提示
+    return true;
+};
+
+
+/*
+  发送 Ajax 请求
+  需改变的参数则需写上，使用默认的不用写，所有的参数都可以不写
+  @param  {Object} paramObj 参数对象,具体参考下面的用例
+  @return {Object} c$ 对象本身，以支持连缀
+
+  ajax({
+     url : "submit.html",                         // 需要发送的地址(默认: 当前页地址)
+     param : "a=1&b=2",                           // 需要发送的传参字符串，或者json对象
+     async : true,                                // 异步或者同步请求(默认: true, 异步请求)。如果需要发送同步请求，请将此选项设置为 false
+     cache : true,                                // 是否允许缓存请求(默认: true, 允许缓存)
+     method : "GET",                              // 请求方式(默认: "GET"),也可用"POST"
+     success : function(xmlHttp){....},           // 请求成功返回的动作
+     error : function(xmlHttp, status){....},     // 请求失败时的动作
+     complete : function(xmlHttp, status){....}   // 请求返回后的动作(不管成败,且在 success 和 error 之后运行)
+  });
+ */
+function ajax(paramObj) {
+    // 创建 XMLHttpRequest
+    var xmlHttp = new XMLHttpRequest();
+    // 如果不支缓 Ajax，提示信息
+    if (!xmlHttp) {
+        alert("您的浏览器不支持 Ajax，部分功能无法使用！");
+        return this;
+    }
+
+    // 需要发送的地址(默认: 当前页地址)
+    paramObj.url = paramObj.url || "#";
+    // 异步或者同步请求(默认: true, 异步请求)
+    if (typeof paramObj.async == 'undefined') {
+        paramObj.async = true;
+    }
+    // 请求方式(默认: "GET")
+    paramObj.method = paramObj.method || "GET";
+    // get形式，将参数放到URL上
+    if ("GET" == ("" + paramObj.method).toUpperCase() && paramObj.param) {
+        paramObj.url += (paramObj.url.indexOf("?") > 0) ? "&" : "?";
+        paramObj.url += paramObj.param;
+        paramObj.param = null;
+    }
+    // 发送请求
+    xmlHttp.open(paramObj.method, paramObj.url, paramObj.async);
+    // 执行回调方法
+    xmlHttp.onreadystatechange = function() {
+        // XMLHttpRequest对象响应内容解析完成
+        if (4 !== xmlHttp.readyState) return;
+        var status = xmlHttp.status;
+        // 200为正常返回状态, 0是本地直接打开文件(没有使用服务器时)
+        if (200 == status || 0 === status) {
+            // 请求成功时的动作
+            if (paramObj.success) paramObj.success(xmlHttp);
+        }
+        else {
+            // 请求失败时的动作
+            if (paramObj.error)  paramObj.error(xmlHttp, status);
+            // 默认的出错处理
+            else alert("页面发生Ajax错误，请联系管理人员! \n错误类型：" + status + ": “" + location.pathname + "”");
+        }
+        // 请求返回后的动作(不管成败,且在 success 和 error 之后运行)
+        if (paramObj.complete) paramObj.complete(xmlHttp, status);
+    };
+    // 缓存策略(默认: 缓存)
+    if (false === paramObj.cache) {
+        xmlHttp.setRequestHeader("If-Modified-Since","0");
+        xmlHttp.setRequestHeader("Cache-Control","no-cache");
+    }
+    // 请求方式("POST")
+    if (paramObj.method.toUpperCase() == "POST") xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+    xmlHttp.setRequestHeader("Charset", "UTF-8");
+    // 发送参数
+    xmlHttp.send(paramObj.param);
+};
+
+
+// 把节点插在另一个节点之后
+function insertAfter(newElement, targetElement) {
+    var parent = targetElement.parentNode;
+    if (parent.lastChild == targetElement) {
+        parent.appendChild(newElement);
+    } else {
+        parent.insertBefore(newElement, targetElement.nextSibling);
+    }
+}
+
 // --------------------------------
 var upperChild = null;  // 上半部分的聊天区域
 var oLine = null;  // 分界线
