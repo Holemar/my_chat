@@ -35,7 +35,7 @@ def add_file():
     file_size = request.content_length
     file_io = file.file
     if settings.DEBUG:
-        return {'status': True, 'message': 'src_IdBJejTPiabjomM3UT6bl', 'file_name': file_name}
+        return {'status': True, 'message': 'src_test_source_id', 'file_name': file_name}
     result, content = get_chat_parser().upload_pdf(file_name, file_size, file_io)
     return {'status': True, 'message': content, 'file_name': file_name}
 
@@ -51,6 +51,20 @@ def chat_message():
         return {'status': True, 'message': message}
     result, content = get_chat_parser().chat_message(target_id, message)
     return {'status': result, 'message': content}
+
+
+@route('/api/menu_list')
+def menu_list():
+    """获取菜单"""
+    result, file_records = get_chat_parser().menu_list()
+    return {'status': result, 'message': file_records}
+
+
+@route('/api/chat_records/<target_id:re:.+?>')
+def chat_records(target_id):
+    """获取聊天记录"""
+    result, records = get_chat_parser().chat_records(target_id)
+    return {'status': result, 'message': records}
 
 
 if __name__ == '__main__':

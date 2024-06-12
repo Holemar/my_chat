@@ -22,22 +22,22 @@ window.onerror = function(msg, url, sLine) {
 };
 
 
-/**
- * 发送 Ajax 请求
- * 需改变的参数则需写上，使用默认的不用写，所有的参数都可以不写
- * @param  {Object} paramObj 参数对象,具体参考下面的用例
- * @return {Object} c$ 对象本身，以支持连缀
- *
- * ajax({
- *    url : "submit.html",                         // 需要发送的地址(默认: 当前页地址)
- *    param : "a=1&b=2",                           // 需要发送的传参字符串，或者json对象
- *    async : true,                                // 异步或者同步请求(默认: true, 异步请求)。如果需要发送同步请求，请将此选项设置为 false
- *    cache : true,                                // 是否允许缓存请求(默认: true, 允许缓存)
- *    method : "GET",                              // 请求方式(默认: "GET"),也可用"POST"
- *    success : function(xmlHttp){....},           // 请求成功返回的动作
- *    error : function(xmlHttp, status){....},     // 请求失败时的动作
- *    complete : function(xmlHttp, status){....}   // 请求返回后的动作(不管成败,且在 success 和 error 之后运行)
- * });
+/*
+  发送 Ajax 请求
+  需改变的参数则需写上，使用默认的不用写，所有的参数都可以不写
+  @param  {Object} paramObj 参数对象,具体参考下面的用例
+  @return {Object} c$ 对象本身，以支持连缀
+
+  ajax({
+     url : "submit.html",                         // 需要发送的地址(默认: 当前页地址)
+     param : "a=1&b=2",                           // 需要发送的传参字符串，或者json对象
+     async : true,                                // 异步或者同步请求(默认: true, 异步请求)。如果需要发送同步请求，请将此选项设置为 false
+     cache : true,                                // 是否允许缓存请求(默认: true, 允许缓存)
+     method : "GET",                              // 请求方式(默认: "GET"),也可用"POST"
+     success : function(xmlHttp){....},           // 请求成功返回的动作
+     error : function(xmlHttp, status){....},     // 请求失败时的动作
+     complete : function(xmlHttp, status){....}   // 请求返回后的动作(不管成败,且在 success 和 error 之后运行)
+  });
  */
 function ajax(paramObj) {
     // 创建 XMLHttpRequest
@@ -99,9 +99,18 @@ function ajax(paramObj) {
 const htmls = [];  // 对话内容
 var targetId = null; // 文件编码
 var chatboxClass = '.lite-chatbox';  // 聊天框选择器
+var fileUploadMessage = {
+    "messageType": 'raw',
+    "headIcon": '/static/images/A.jpg',
+    "name": 'PDF智能解析机器人',
+    "position": 'left',
+    "html": `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
+};
 
+// 发送消息(聊天框点"发送"的事件)
 function sendMessage() {
     var message = document.querySelector('.chatinput').innerHTML;
+    if (!message) return;
     htmls.push({
         messageType: 'raw',
         position: 'right',
@@ -113,13 +122,9 @@ function sendMessage() {
     if (!targetId) {
         // htmls.push({'messageType': 'tipsWarning', html: '系统消息：请先上传 PDF 文件'});
         // beforeRenderingHTML(htmls, chatboxClass);
-        htmls.push({
-            messageType: 'raw',
-            headIcon: '/static/images/A.jpg',
-            name: 'PDF智能解析机器人',
-            position: 'left',
-            html: `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
-        });
+        let botMessage = {};
+        for (let key in fileUploadMessage) {botMessage[key] = fileUploadMessage[key];}
+        htmls.push(botMessage);
         beforeRenderingHTML(htmls, chatboxClass);
     } else {
         ajax({
@@ -146,6 +151,7 @@ function sendMessage() {
     }
 }
 
+// 上传文件处理
 function sendFile(file) {
     let xhr = new XMLHttpRequest();
     xhr.open('post', '/api/add_file', true);
@@ -161,7 +167,7 @@ function sendFile(file) {
                 position: 'left',
                 html: '文件已经完成智能解析，请就这文件进行讨论。'
             });
-            // 清空之前的聊天内容，避免再次上传文件（此场景暂不考虑）
+            // 清空之前的聊天内容
             document.querySelector(chatboxClass).innerHTML = '';
             beforeRenderingHTML(htmls, chatboxClass);
         } else {
@@ -175,25 +181,74 @@ function sendFile(file) {
     xhr.send(form);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    htmls.push({
-        messageType: 'raw',
-        headIcon: '/static/images/A.jpg',
-        name: 'PDF智能解析机器人',
-        position: 'left',
-        html: `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
+// 加载聊天记录
+function loadChatRecord(tId, this_id) {
+    var menu_list = document.querySelectorAll('.left-menu ul li a');
+    for (var i = 0; i < menu_list.length; i++) {
+         menu_list[i].classList.remove('active');
+    }
+    var this_menu = document.querySelector('#' + this_id);
+    this_menu.classList.add('active');
+    targetId = tId;
+    // 清空之前的聊天内容
+    htmls.length = 0;  // 清空数组
+    document.querySelector(chatboxClass).innerHTML = '';
+    beforeRenderingHTML([{'messageType': 'tipsWarning', html: '正在加载聊天记录，请稍候...'}], chatboxClass);
+
+    // 加载聊天记录
+    ajax({"url": "/api/chat_record",
+         "param": "targetId=" + tId,
+         "method": "GET",
+         "success": function(xmlHttp) {
+            var data = JSON.parse(xmlHttp.responseText);
+            if (data.status) {
+                htmls.length = 0;  // 清空数组
+                for (var i = 0; i < data.message.length; i++) {
+                    let thisMessage = data.message[i];
+            }
+            beforeRenderingHTML(htmls, chatboxClass);
+            } else {
+                htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+                beforeRenderingHTML(htmls, chatboxClass);
+            }
+         }
     });
+}
+
+// 加载左边菜单栏的内容
+function loadMenu() {
+    ajax({"url": "/api/menu_list",
+         "success": function(xmlHttp) {
+            var data = JSON.parse(xmlHttp.responseText);
+            if (data.status) {
+                var menuHtml = '<li><a class="new active" href="javascript:void(0)">新建文档</a></li>';
+                for (var i = 0; i < data.message.length; i++) {
+                    var thisMenu = data.message[i];
+                    menuHtml += '<li><a id="menu_' + thisMenu.id + '" href=\'javascript:loadChatRecord("' + thisMenu.target_id + '", "menu_' + thisMenu.id + '")\'>' + thisMenu.file_name + '</a></li>';
+                }
+                document.querySelector('.left-menu ul').innerHTML = menuHtml;
+            } else {
+                htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+                beforeRenderingHTML(htmls, chatboxClass);
+            }
+         },
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    let botMessage = {};
+    for (let key in fileUploadMessage) {botMessage[key] = fileUploadMessage[key];}
+    htmls.push(botMessage);
     beforeRenderingHTML(htmls, chatboxClass);
 
     // 设置发送文件
     inputFile({
-        // 允许发送文件
-        enable: true,
-        // 允许在输入框处拖拽发送文件
-        enableDrop: true,
+        enable: true,  // 允许发送文件
+        enableDrop: true,  // 允许在输入框处拖拽发送文件
         maxImageSize: 1024 * 1024 * 10, // 图片最大 10MB，超过了就要用文件发送，默认为 -1（无限制），可以不设置
         maxImageNumber: 20, // 输入框内最多同时存在 20 张图片，默认为 -1（无限制），可以不设置
-        // 负责发送文件的函数（回调函数），file 为传回的文件信息，与使用 <input> 标签获得的相同
-        sendFileFunc: sendFile
+        sendFileFunc: sendFile  // 负责发送文件的函数（回调函数），file 为传回的文件信息，与使用 <input> 标签获得的相同
     });
+
+    loadMenu();
 });

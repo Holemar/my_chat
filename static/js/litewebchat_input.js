@@ -12,23 +12,20 @@
 // ————YubaC 2023.1.23
 
 // --------------------------------
-// 上半部分的聊天区域
-var upperChild = document.querySelector('.lite-chatbox');
-// 分界线
-var oLine = document.querySelector('.lite-chatinput hr');
-// 下半部分的输入框区域
-var downChild = document.querySelector('.lite-chatinput');
+var upperChild = null;  // 上半部分的聊天区域
+var oLine = null;  // 分界线
+var downChild = null;  // 下半部分的输入框区域
 
 // 以下为输入框区域的按钮
-var emojiBtn = document.getElementById("emojiBtn"); // 表情按钮
-var imageBtn = document.getElementById("imageBtn"); // 图片按钮
-var fileBtn = document.getElementById("fileBtn"); // 文件按钮
-var editFullScreen = document.getElementById("editFullScreen"); // 全屏按钮
-var exitFullScreen = document.getElementById("exitFullScreen"); // 退出全屏按钮
-var emojiMart = document.getElementById("emojiMart"); // 表情面板
-var toolMusk = document.getElementById("toolMusk"); // 表情面板遮罩
-var sendBtn = document.getElementById("sendBtn"); // 发送按钮
-var chatInput = document.querySelector('.lite-chatinput>.chatinput'); // 输入框
+var emojiBtn = null; // 表情按钮
+var imageBtn = null; // 图片按钮
+var fileBtn = null; // 文件按钮
+var editFullScreen = null; // 全屏按钮
+var exitFullScreen = null; // 退出全屏按钮
+var emojiMart = null; // 表情面板
+var toolMusk = null; // 表情面板遮罩
+var sendBtn = null; // 发送按钮
+var chatInput = null; // 输入框
 // --------------------------------
 
 // Emoji Mart（表情面板）设置及唤起
@@ -231,6 +228,22 @@ function onPaste(event) {
 //# sourceMappingURL=map/litewebchat_input.js.map
 
 document.addEventListener("DOMContentLoaded", function() {
+    // 聊天区域
+    upperChild = document.querySelector('.lite-chatbox');  // 上半部分的聊天区域
+    oLine = document.querySelector('.lite-chatinput hr');  // 分界线
+    downChild = document.querySelector('.lite-chatinput');  // 下半部分的输入框区域
+
+    // 以下为输入框区域的按钮
+    emojiBtn = document.getElementById("emojiBtn"); // 表情按钮
+    imageBtn = document.getElementById("imageBtn"); // 图片按钮
+    fileBtn = document.getElementById("fileBtn"); // 文件按钮
+    editFullScreen = document.getElementById("editFullScreen"); // 全屏按钮
+    exitFullScreen = document.getElementById("exitFullScreen"); // 退出全屏按钮
+    emojiMart = document.getElementById("emojiMart"); // 表情面板
+    toolMusk = document.getElementById("toolMusk"); // 表情面板遮罩
+    sendBtn = document.getElementById("sendBtn"); // 发送按钮
+    chatInput = document.querySelector('.lite-chatinput>.chatinput'); // 输入框
+
     // 表情输入框初始化
     var picker = new EmojiMart.Picker(pickerOptions);
     emojiMart.appendChild(picker);

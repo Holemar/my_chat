@@ -7,8 +7,6 @@ import sqlite3
 import threading
 
 
-__all__ = ('set_db', 'get_db_conn', 'add_api_log', 'add_error_log', 'add_file_record', 'add_chat_record')
-
 DB_CONN, DB_CURSOR = None, None  # 数据库连接,游标
 G_MUTEX = threading.Lock()  # 全局线程锁(支持多线程用)
 FILE_IDS = {}  # 文件ID映射表
@@ -127,6 +125,17 @@ def add_file_record(file_name, file_size, ip, user_id, target_id, status_code, r
     return result
 
 
+def get_file_records():
+    """获取文件上传记录"""
+    conn, cursor = get_db_conn()
+    G_MUTEX.acquire()  # 线程锁
+    result = list(cursor.execute("SELECT id, file_name, user_id, target_id FROM files WHERE status_code=200 ORDER BY id DESC"))
+    G_MUTEX.release()  # 释放线程锁
+    if result:
+        return [{'id': r[0], 'file_name': r[1], 'user_id': r[2], 'target_id': r[3]} for r in result]
+    return []
+
+
 def add_chat_record(user_id, target_id, message, ip, status_code, response_data, use_times):
     """聊天记录
     :param user_id: 用户ID
@@ -154,4 +163,15 @@ def add_chat_record(user_id, target_id, message, ip, status_code, response_data,
     result = cursor.rowcount == 1
     G_MUTEX.release()  # 释放线程锁
     return result
+
+
+def get_chat_records(target_id):
+    """获取聊天记录"""
+    conn, cursor = get_db_conn()
+    G_MUTEX.acquire()  # 线程锁
+    result = list(cursor.execute("SELECT id, message, response_data FROM chat_message WHERE status_code=200 AND target_id=?", (target_id,)))
+    G_MUTEX.release()  # 释放线程锁
+    if result:
+        return [{'id': r[0], 'message': r[1], 'response_data': r[2]} for r in result]
+    return []
 

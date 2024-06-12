@@ -4,9 +4,10 @@
 请求 chatPDF.com 的 API 实现 PDF 文档的自动化聊天功能
 """
 import time
+import logging
 import requests
 import settings
-from services.sqlite3_util import add_error_log, add_file_record, add_chat_record
+from services.sqlite3_util import add_error_log, add_file_record, add_chat_record, get_file_records, get_chat_records
 from services.middleware import get_ip
 
 
@@ -24,23 +25,27 @@ class ChatPDF:
         :param file_io: 文件对象
         :return: 成功返回 (True, sourceId)。 失败返回 (False, 错误信息)
         """
-        files = [
-            # ('file', ('file', open(file_path, 'rb'), 'application/octet-stream'))
-            ('file', (file_name, file_io, 'application/octet-stream'))
-        ]
-        start_time = time.time()
-        response = requests.post('https://api.chatpdf.com/v1/sources/add-file', headers=self.HEADER, files=files)
-        use_time = time.time() - start_time
-        if response.status_code == 200:
-            data = response.json()
-            source_id = data.get('sourceId')
-            if source_id:
-                add_file_record(file_name, file_size, get_ip(), None, source_id,
-                                response.status_code, response.text, use_time)
-                return True, source_id
-        add_file_record(file_name, file_size, get_ip(), None, None, response.status_code, response.text, use_time)
-        add_error_log(f'Upload PDF failed', 'ERROR', f"status_code: {response.status_code}, text: {response.text}")
-        return False, response.text
+        try:
+            files = [
+                # ('file', ('file', open(file_path, 'rb'), 'application/octet-stream'))
+                ('file', (file_name, file_io, 'application/octet-stream'))
+            ]
+            start_time = time.time()
+            response = requests.post('https://api.chatpdf.com/v1/sources/add-file', headers=self.HEADER, files=files)
+            use_time = time.time() - start_time
+            if response.status_code == 200:
+                data = response.json()
+                source_id = data.get('sourceId')
+                if source_id:
+                    add_file_record(file_name, file_size, get_ip(), None, source_id,
+                                    response.status_code, response.text, use_time)
+                    return True, source_id
+            add_file_record(file_name, file_size, get_ip(), None, None, response.status_code, response.text, use_time)
+            add_error_log(f'Upload PDF failed', 'ERROR', f"status_code: {response.status_code}, text: {response.text}")
+            return False, response.text
+        except Exception as e:
+            logging.exception(f'Upload PDF failed: {e}')
+            return False, str(e)
 
     def chat_message(self, source_id, message):
         """ 发送聊天消息
@@ -48,21 +53,49 @@ class ChatPDF:
         :param message: 聊天消息
         :return: 成功返回 (True, 聊天内容)。 失败返回 (False, 错误信息)
         """
-        data = {
-           'sourceId': source_id,
-           'messages': [{'role': "user", 'content': message}]
-        }
-        start_time = time.time()
-        response = requests.post('https://api.chatpdf.com/v1/chats/message', headers=self.HEADER, json=data)
-        use_time = time.time() - start_time
-        add_chat_record(None, source_id, message, get_ip(), response.status_code, response.text, use_time)
-        if response.status_code == 200:
-            data = response.json()
-            content = data.get('content')
-            if content:
-                return True, content
-        add_error_log(f'Chat PDF failed', 'ERROR', f"status_code: {response.status_code}, text: {response.text}")
-        return False, response.text
+        try:
+            data = {
+               'sourceId': source_id,
+               'messages': [{'role': "user", 'content': message}]
+            }
+            start_time = time.time()
+            response = requests.post('https://api.chatpdf.com/v1/chats/message', headers=self.HEADER, json=data)
+            use_time = time.time() - start_time
+            add_chat_record(None, source_id, message, get_ip(), response.status_code, response.text, use_time)
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get('content')
+                if content:
+                    return True, content
+            add_error_log(f'Chat PDF failed', 'ERROR', f"status_code: {response.status_code}, text: {response.text}")
+            return False, response.text
+        except Exception as e:
+            logging.exception(f'Chat PDF failed: {e}')
+            return False, str(e)
+
+    @staticmethod
+    def menu_list():
+        """
+        获取文件列表
+        :return: 成功返回 (True, 获取文件列表)。 失败返回 (False, 错误信息)
+        """
+        try:
+            file_records = get_file_records()
+            return True, file_records
+        except Exception as e:
+            return False, str(e)
+
+    @staticmethod
+    def chat_records(target_id):
+        """
+        获取聊天记录
+        :return: 成功返回 (True, 获取聊天记录列表)。 失败返回 (False, 错误信息)
+        """
+        try:
+            chat_records = get_chat_records(target_id)
+            return True, chat_records
+        except Exception as e:
+            return False, str(e)
 
 
 if __name__ == '__main__':
