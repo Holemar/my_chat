@@ -159,6 +159,7 @@ document.addEventListener("DOMContentLoaded", function() {
     inputFile({
         enable: true,  // 允许发送文件
         enableDrop: true,  // 允许在输入框处拖拽发送文件
+        accept: '.pdf',  // 允许上传的文件类型
         maxImageSize: 1024 * 1024 * 10, // 图片最大 10MB，超过了就要用文件发送，默认为 -1（无限制），可以不设置
         maxImageNumber: 20, // 输入框内最多同时存在 20 张图片，默认为 -1（无限制），可以不设置
         sendFileFunc: sendFile  // 负责发送文件的函数（回调函数），file 为传回的文件信息，与使用 <input> 标签获得的相同

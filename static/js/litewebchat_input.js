@@ -257,6 +257,10 @@ function inputFile(settings) {
       // 创建一个隐藏的上传文件的input，再借助点击这个input来上传文件
       var fileInput = document.createElement('input');
       fileInput.type = 'file';
+      // accept属性设置了允许上传的文件类型，值如：".doc, .docx, .xls, .txt, application/msword, image/*"
+      if (settings.accept) {
+        fileInput.accept = settings.accept;
+      }
       fileInput.multiple = true;
       fileInput.style.display = 'none';
       fileInput.onchange = function () {
