@@ -8,9 +8,9 @@ function setBotMessage(message) {
     let botMessage = {
          "messageType": 'raw',
          "headIcon": '/static/images/A.jpg',
-         "name": 'PDF智能解析机器人',
+         "name": 'PDF parsing robot',
          "position": 'left',
-         "html": `请先点击下面按钮选择需要解析的 PDF 文件：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">文件上传</button>`
+         "html": `Please click the button below to select the PDF file you want to parse：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">File Upload</button>`
     };
     if (message) {
         botMessage.html = message;
@@ -47,7 +47,7 @@ function sendMessage() {
                 if (data.status) {
                     setBotMessage(data.message);
                 } else {
-                    htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+                    htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
                     beforeRenderingHTML(htmls, chatboxClass);
                 }
              }
@@ -64,7 +64,7 @@ function sendFile(file) {
         if (data.status) {
             targetId = data.message;
             clearChat();  // 清空之前的聊天内容
-            setBotMessage('文件 "' + data.file_name + '" 已经完成智能解析，请就这文件进行讨论。');
+            setBotMessage('The file "' + data.file_name + '" has been intelligently parsed. Please discuss this file.');
             // 上传文件后，新增一个菜单项
             let currentTimeStamp = new Date().getTime();  // 当前时间戳，当作新菜单项的ID
             let liNode = document.createElement('li');
@@ -73,7 +73,7 @@ function sendFile(file) {
             newMenu.firstChild.className = 'new';
             insertAfter(liNode, newMenu);
         } else {
-            htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+            htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
             beforeRenderingHTML(htmls, chatboxClass);
         }
     }
@@ -94,7 +94,7 @@ function loadChatRecord(tId, this_id) {
     targetId = tId;
     // 清空之前的聊天内容
     clearChat();
-    beforeRenderingHTML([{'messageType': 'tipsWarning', html: '正在加载聊天记录，请稍候...'}], chatboxClass);
+    beforeRenderingHTML([{'messageType': 'tipsWarning', html: 'Loading chat history, please wait...'}], chatboxClass);
 
     // 加载聊天记录
     ajax({"url": "/api/chat_records/" + tId,
@@ -103,7 +103,7 @@ function loadChatRecord(tId, this_id) {
             var data = JSON.parse(xmlHttp.responseText);
             if (data.status) {
                 clearChat();  // 清空之前的聊天内容
-                setBotMessage('文件 "' + this_menu.innerText + '" 已经完成智能解析，请就这文件进行讨论。');
+                setBotMessage('The file "' + this_menu.innerText + '" has been intelligently parsed. Please discuss this file.');
                 for (var i = 0; i < data.message.length; i++) {
                     let thisMessage = data.message[i];
                     htmls.push({'messageType': 'raw', 'position': 'right', 'html': thisMessage.message});
@@ -112,7 +112,7 @@ function loadChatRecord(tId, this_id) {
                 }
                 beforeRenderingHTML(htmls, chatboxClass);
             } else {
-                htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+                htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
                 beforeRenderingHTML(htmls, chatboxClass);
             }
          }
@@ -137,14 +137,14 @@ function loadMenu() {
          "success": function(xmlHttp) {
             var data = JSON.parse(xmlHttp.responseText);
             if (data.status) {
-                var menuHtml = '<li><a class="new active" href="javascript:newDocument()">新建文档</a></li>';
+                var menuHtml = '<li><a class="new active" href="javascript:newDocument()">Create a new document</a></li>';
                 for (var i = 0; i < data.message.length; i++) {
                     var thisMenu = data.message[i];
                     menuHtml += '<li><a id="menu_' + thisMenu.id + '" href=\'javascript:loadChatRecord("' + thisMenu.target_id + '", "menu_' + thisMenu.id + '")\'>' + thisMenu.file_name + '</a></li>';
                 }
                 document.querySelector('.left-menu ul').innerHTML = menuHtml;
             } else {
-                htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+                htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
                 beforeRenderingHTML(htmls, chatboxClass);
             }
          },
