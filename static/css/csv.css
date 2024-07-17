@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+html, body {height: 100%; margin: 0; padding: 0;}
+.lite-chatmaster, .lite-chatbox {height: 100%; width: 100%;}
+::-webkit-scrollbar { /* 滚动条整体样式 */ width: 3px; /* 高宽分别对应横竖滚动条的尺寸 */ height: 1px;}
+.file-btn {background: none;border: solid 1px;border-radius: 2em;font: inherit;cursor: pointer;color: #FF0066;}
