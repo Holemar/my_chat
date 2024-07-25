@@ -47,5 +47,5 @@ def csv_to_excel(csv_filename, csv_file_io):
         os.makedirs(os.path.dirname(excel_file_path))
     # 生成Excel文件
     write_excel(csv_data, excel_file_path)
-    return '/' + url_path
+    return excel_file_name, '/' + url_path
 

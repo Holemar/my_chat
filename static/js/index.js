@@ -8,9 +8,9 @@ function setBotMessage(message) {
     let botMessage = {
          "messageType": 'raw',
          "headIcon": '/static/images/A.jpg',
-         "name": 'PDF parsing robot',
+         "name": language.botName,
          "position": 'left',
-         "html": `Please click the button below to select the PDF file you want to parse：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">File Upload</button>`
+         "html": language.botBtnHtml + `<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">` + language.botBtnValue + `</button>`
     };
     if (message) {
         botMessage.html = message;
@@ -47,7 +47,7 @@ function sendMessage() {
                 if (data.status) {
                     setBotMessage(data.message);
                 } else {
-                    htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
+                    htmls.push({'messageType': 'tipsDanger', html: language.systemError + data.message});
                     beforeRenderingHTML(htmls, chatboxClass);
                 }
              }
@@ -64,7 +64,7 @@ function sendFile(file) {
         if (data.status) {
             targetId = data.message;
             clearChat();  // 清空之前的聊天内容
-            setBotMessage('The file "' + data.file_name + '" has been intelligently parsed. Please discuss this file.');
+            setBotMessage(language.theFile + data.file_name + language.parsedFile);
             // 上传文件后，新增一个菜单项
             let currentTimeStamp = new Date().getTime();  // 当前时间戳，当作新菜单项的ID
             let liNode = document.createElement('li');
@@ -73,7 +73,7 @@ function sendFile(file) {
             newMenu.firstChild.className = 'new';
             insertAfter(liNode, newMenu);
         } else {
-            htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
+            htmls.push({'messageType': 'tipsDanger', html: language.systemError + data.message});
             beforeRenderingHTML(htmls, chatboxClass);
         }
     }
@@ -94,7 +94,7 @@ function loadChatRecord(tId, this_id) {
     targetId = tId;
     // 清空之前的聊天内容
     clearChat();
-    beforeRenderingHTML([{'messageType': 'tipsWarning', html: 'Loading chat history, please wait...'}], chatboxClass);
+    beforeRenderingHTML([{'messageType': 'tipsWarning', html: language.loading}], chatboxClass);
 
     // 加载聊天记录
     ajax({"url": "/api/chat_records/" + tId,
@@ -103,7 +103,7 @@ function loadChatRecord(tId, this_id) {
             var data = JSON.parse(xmlHttp.responseText);
             if (data.status) {
                 clearChat();  // 清空之前的聊天内容
-                setBotMessage('The file "' + this_menu.innerText + '" has been intelligently parsed. Please discuss this file.');
+                setBotMessage(language.theFile + this_menu.innerText + language.parsedFile);
                 for (var i = 0; i < data.message.length; i++) {
                     let thisMessage = data.message[i];
                     htmls.push({'messageType': 'raw', 'position': 'right', 'html': thisMessage.message});
@@ -112,7 +112,7 @@ function loadChatRecord(tId, this_id) {
                 }
                 beforeRenderingHTML(htmls, chatboxClass);
             } else {
-                htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
+                htmls.push({'messageType': 'tipsDanger', html: language.systemError + data.message});
                 beforeRenderingHTML(htmls, chatboxClass);
             }
          }
@@ -137,23 +137,35 @@ function loadMenu() {
          "success": function(xmlHttp) {
             var data = JSON.parse(xmlHttp.responseText);
             if (data.status) {
-                var menuHtml = '<li><a class="new active" href="javascript:newDocument()">Create a new document</a></li>';
+                var menuHtml = '<li><a class="new active" href="javascript:newDocument()">' + language.newDocument + '</a></li>';
                 for (var i = 0; i < data.message.length; i++) {
                     var thisMenu = data.message[i];
                     menuHtml += '<li><a id="menu_' + thisMenu.id + '" href=\'javascript:loadChatRecord("' + thisMenu.target_id + '", "menu_' + thisMenu.id + '")\'>' + thisMenu.file_name + '</a></li>';
                 }
                 document.querySelector('.left-menu ul').innerHTML = menuHtml;
             } else {
-                htmls.push({'messageType': 'tipsDanger', html: 'System Error:' + data.message});
+                htmls.push({'messageType': 'tipsDanger', html: language.systemError + data.message});
                 beforeRenderingHTML(htmls, chatboxClass);
             }
          },
     });
 }
 
+// 设置语言
+function setLanguage(lang) {
+    document.title = lang.title;
+    document.getElementById("emojiBtn").title = lang.emo;
+    document.getElementById("fileBtn").title = lang.sendFile;
+    document.getElementById("editFullScreen").title = lang.editFullScreen;
+    document.getElementById("exitFullScreen").title = lang.exitFullScreen;
+    document.getElementById("sendBtn").innerHTML = lang.send;
+    document.getElementsByClassName("new")[0].innerHTML = lang.newDocument;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     setBotMessage();  // 加载机器人消息
     loadMenu();  // 加载左边菜单栏内容
+    setLanguage(language); // 设置语言
 
     // 设置发送文件
     inputFile({

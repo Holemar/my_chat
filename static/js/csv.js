@@ -7,9 +7,9 @@ function setBotMessage(message) {
     let botMessage = {
          "messageType": 'raw',
          "headIcon": '/static/images/A.jpg',
-         "name": 'Converter',
+         "name": language.csvBotName,
          "position": 'left',
-         "html": `Please click the button below to upload the CSV file：<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">Upload File</button>`
+         "html": language.csvBotHtml + `<br/> <button class="file-btn" onclick="document.getElementById('fileBtn').click();">` + language.botBtnValue + `</button>`
     };
     if (message) {
         botMessage.html = message;
@@ -26,14 +26,14 @@ function sendFile(file) {
         let data = JSON.parse(xhr.responseText);
         if (data.status) {
             let file_name = data.file_name;
+            let excel_file_name = data.excel_file_name;
             let url_path = data.message;
-            let thisMessage = 'The file "' + file_name + '" has been converted.<br/>';
-            thisMessage += ' Click the link below to download the converted file:<br/>';
-            thisMessage += '<a href="' + url_path + '" target="_blank">"' + file_name + '"</a>';
+            let thisMessage = language.theFile + file_name + language.ConvertedFile;
+            thisMessage += '<br/><a href="' + url_path + '" target="_blank">' + excel_file_name + '</a>';
             htmls.push({'messageType': 'raw', 'position': 'right', 'html': thisMessage});
             setBotMessage();  // 加载机器人消息
         } else {
-            htmls.push({'messageType': 'tipsDanger', html: '系统错误：' + data.message});
+            htmls.push({'messageType': 'tipsDanger', html: language.systemError + data.message});
             beforeRenderingHTML(htmls, chatboxClass);
         }
     }
@@ -43,9 +43,19 @@ function sendFile(file) {
     xhr.send(form);
 }
 
+// 设置语言
+function setLanguage(lang) {
+    document.title = lang.csvTitle;
+    document.getElementById("emojiBtn").title = lang.emo;
+    document.getElementById("fileBtn").title = lang.sendFile;
+    document.getElementById("editFullScreen").title = lang.editFullScreen;
+    document.getElementById("exitFullScreen").title = lang.exitFullScreen;
+    document.getElementById("sendBtn").innerHTML = lang.send;
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     setBotMessage();  // 加载机器人消息
+    setLanguage(language); // 设置语言
     // 设置发送文件
     inputFile({
         enable: true,  // 允许发送文件

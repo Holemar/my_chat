@@ -36,8 +36,8 @@ def add_file():
         return {'status': False, 'message': 'The file format is not supported, only CSV is supported'}
     file_size = request.content_length
     file_io = file.file
-    url_path = csv_to_excel(file_name, file_io)
-    return {'status': True, 'message': url_path, 'file_name': file_name}
+    excel_file_name, url_path = csv_to_excel(file_name, file_io)
+    return {'status': True, 'message': url_path, 'file_name': file_name, 'excel_file_name': excel_file_name}
 
 
 if __name__ == '__main__':
