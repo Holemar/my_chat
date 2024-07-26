@@ -72,7 +72,7 @@ if __name__ == '__main__':
 import base64, calendar, cgi, email.utils, functools, hmac, itertools,\
        mimetypes, os, re, tempfile, threading, time, warnings, weakref, hashlib
 
-from types import FunctionType
+from types import FunctionType, ModuleType
 from datetime import date as datedate, datetime, timedelta
 from tempfile import TemporaryFile
 from traceback import format_exc, print_exc
@@ -82,11 +82,6 @@ try:
     from ujson import dumps as json_dumps, loads as json_lds
 except ImportError:
     from json import dumps as json_dumps, loads as json_lds
-
-try:
-    import imp
-except ImportError:
-    import importlib as imp
 
 # inspect.getargspec was removed in Python 3.6, use
 # Signature-based version where we can (Python 3.3+)
@@ -2058,13 +2053,24 @@ class TemplatePlugin(object):
             return callback
 
 
+def new_module(name):
+    """**DEPRECATED**
+
+    Create a new module.
+
+    The module is not entered into sys.modules.
+
+    """
+    return ModuleType(name)
+
+
 #: Not a plugin, but part of the plugin API. TODO: Find a better place.
 class _ImportRedirect(object):
     def __init__(self, name, impmask):
         """ Create a virtual package that redirects imports (see PEP 302). """
         self.name = name
         self.impmask = impmask
-        self.module = sys.modules.setdefault(name, imp.new_module(name))
+        self.module = sys.modules.setdefault(name, new_module(name))
         self.module.__dict__.update({
             '__file__': __file__,
             '__path__': [],
