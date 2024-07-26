@@ -134,6 +134,7 @@ var emojiMart = null; // 表情面板
 var toolMusk = null; // 表情面板遮罩
 var sendBtn = null; // 发送按钮
 var chatInput = null; // 输入框
+var switchLanguage = null; // 切换语言
 // --------------------------------
 
 // Emoji Mart（表情面板）设置及唤起
@@ -339,6 +340,27 @@ function onPaste(event) {
 }
 //# sourceMappingURL=map/litewebchat_input.js.map
 
+// 设置语言
+function changeLanguage(settings) {
+    switchLanguage.onclick = function () {
+        if (language.title === i18n.cn.title) {
+            language = i18n["en"];
+        } else {
+            language = i18n["cn"];
+        }
+        document.title = language.title;
+        emojiBtn.title = language.emo;
+        fileBtn.title = language.sendFile;
+        switchLanguage.title = language.switchLanguage;
+        editFullScreen.title = language.editFullScreen;
+        exitFullScreen.title = language.exitFullScreen;
+        sendBtn.innerHTML = language.send;
+        if (settings && settings.func) {
+            settings.func();
+        }
+    };
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // 聊天区域
     upperChild = document.querySelector('.lite-chatbox');  // 上半部分的聊天区域
@@ -355,6 +377,8 @@ document.addEventListener("DOMContentLoaded", function() {
     toolMusk = document.getElementById("toolMusk"); // 表情面板遮罩
     sendBtn = document.getElementById("sendBtn"); // 发送按钮
     chatInput = document.querySelector('.lite-chatinput>.chatinput'); // 输入框
+    switchLanguage = document.getElementById("switchLanguage"); // 切换语言
+    changeLanguage();
 
     // 表情输入框初始化
     var picker = new EmojiMart.Picker(pickerOptions);

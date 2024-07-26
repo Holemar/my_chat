@@ -151,21 +151,14 @@ function loadMenu() {
     });
 }
 
-// 设置语言
-function setLanguage(lang) {
-    document.title = lang.title;
-    document.getElementById("emojiBtn").title = lang.emo;
-    document.getElementById("fileBtn").title = lang.sendFile;
-    document.getElementById("editFullScreen").title = lang.editFullScreen;
-    document.getElementById("exitFullScreen").title = lang.exitFullScreen;
-    document.getElementById("sendBtn").innerHTML = lang.send;
-    document.getElementsByClassName("new")[0].innerHTML = lang.newDocument;
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     setBotMessage();  // 加载机器人消息
     loadMenu();  // 加载左边菜单栏内容
-    setLanguage(language); // 设置语言
+    changeLanguage({  // 切换语言
+        func: function() {
+            document.getElementsByClassName("new")[0].innerHTML = language.newDocument;
+        }
+    });
 
     // 设置发送文件
     inputFile({

@@ -43,19 +43,8 @@ function sendFile(file) {
     xhr.send(form);
 }
 
-// 设置语言
-function setLanguage(lang) {
-    document.title = lang.csvTitle;
-    document.getElementById("emojiBtn").title = lang.emo;
-    document.getElementById("fileBtn").title = lang.sendFile;
-    document.getElementById("editFullScreen").title = lang.editFullScreen;
-    document.getElementById("exitFullScreen").title = lang.exitFullScreen;
-    document.getElementById("sendBtn").innerHTML = lang.send;
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     setBotMessage();  // 加载机器人消息
-    setLanguage(language); // 设置语言
     // 设置发送文件
     inputFile({
         enable: true,  // 允许发送文件
