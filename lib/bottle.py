@@ -69,7 +69,7 @@ if __name__ == '__main__':
 ###############################################################################
 
 
-import base64, calendar, cgi, email.utils, functools, hmac, imp, itertools,\
+import base64, calendar, cgi, email.utils, functools, hmac, itertools,\
        mimetypes, os, re, tempfile, threading, time, warnings, weakref, hashlib
 
 from types import FunctionType
@@ -82,6 +82,11 @@ try:
     from ujson import dumps as json_dumps, loads as json_lds
 except ImportError:
     from json import dumps as json_dumps, loads as json_lds
+
+try:
+    import imp
+except ImportError:
+    import importlib as imp
 
 # inspect.getargspec was removed in Python 3.6, use
 # Signature-based version where we can (Python 3.3+)
