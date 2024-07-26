@@ -50,3 +50,21 @@ var i18n = {
 };
 
 var language = i18n["cn"];
+(function(){
+    let lang = navigator.language || navigator.userLanguage; //常规浏览器语言和IE浏览器
+    lang = lang.substr(0, 2);//截取lang前2位字符
+    /*
+    上面截取lang的前2位字符，是因为浏览器语言返回值可能是：
+    zh-cn Chinese(PRC)
+    zh-tw Chinese(Taiwan Region)
+    zh-hk Chinese(Hong Kong SAR, PRC)
+    zh-sg Chinese(Singapore)
+    en-us English(United States)
+    en     English
+    */
+    if(lang == 'zh'){
+        language = i18n["cn"];
+    } else {
+        language = i18n["en"];
+    }
+})();
